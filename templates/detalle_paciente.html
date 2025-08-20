@@ -1,0 +1,638 @@
+{% extends "base.html" %}
+
+{% block title %}{{ paciente.fields.Nombre }} - Detalle del Paciente{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('lista_pacientes') }}">Pacientes</a></li>
+                <li class="breadcrumb-item active">{{ paciente.fields.Nombre }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Header del Paciente -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                            <span class="fs-2">{{ paciente.fields.Nombre[0]|upper if paciente.fields.Nombre else 'P' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <h3 class="mb-1">{{ paciente.fields.Nombre or 'Sin nombre' }}</h3>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-heart-pulse me-1"></i>
+                            {{ paciente.fields['Obra Social'] or 'Sin obra social' }}
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            {% if paciente.fields.DNI %}
+                            <small class="text-muted">
+                                <i class="bi bi-card-text me-1"></i>DNI: {{ paciente.fields.DNI }}
+                            </small>
+                            {% endif %}
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                Registro: {{ paciente.fields['Fecha Registro'][:10] if paciente.fields['Fecha Registro'] else 'No disponible' }}
+                            </small>
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>Activo
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary" onclick="crearTurno()">
+                                <i class="bi bi-calendar-plus me-1"></i>Nuevo Turno
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="editarPaciente()">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </button>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-info dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><button class="dropdown-item" onclick="imprimirFicha()">
+                                        <i class="bi bi-printer me-2"></i>Imprimir Ficha
+                                    </button></li>
+                                    <li><button class="dropdown-item" onclick="exportarHistoria()">
+                                        <i class="bi bi-download me-2"></i>Exportar Historia
+                                    </button></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><button class="dropdown-item" onclick="enviarRecordatorio()">
+                                        <i class="bi bi-bell me-2"></i>Enviar Recordatorio
+                                    </button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Información Principal -->
+    <div class="col-lg-8">
+        <!-- Datos Personales -->
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person text-primary me-2"></i>
+                    Información Personal
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">Nombre Completo</label>
+                        <div class="fw-medium">{{ paciente.fields.Nombre or 'No especificado' }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">DNI/Documento</label>
+                        <div class="fw-medium">{{ paciente.fields.DNI or 'No especificado' }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">Teléfono</label>
+                        <div class="fw-medium">
+                            {% if paciente.fields.Telefono %}
+                                <a href="tel:{{ paciente.fields.Telefono }}" class="text-decoration-none">
+                                    <i class="bi bi-telephone me-1"></i>{{ paciente.fields.Telefono }}
+                                </a>
+                            {% else %}
+                                No especificado
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">Email</label>
+                        <div class="fw-medium">
+                            {% if paciente.fields.Email %}
+                                <a href="mailto:{{ paciente.fields.Email }}" class="text-decoration-none">
+                                    <i class="bi bi-envelope me-1"></i>{{ paciente.fields.Email }}
+                                </a>
+                            {% else %}
+                                No especificado
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">Fecha de Nacimiento</label>
+                        <div class="fw-medium">
+                            {% if paciente.fields['Fecha Nacimiento'] %}
+                                {{ paciente.fields['Fecha Nacimiento'] }}
+                                <small class="text-muted">({{ calcular_edad(paciente.fields['Fecha Nacimiento']) }} años)</small>
+                            {% else %}
+                                No especificado
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">Obra Social</label>
+                        <div class="fw-medium">
+                            <span class="badge bg-{{ 'success' if paciente.fields['Obra Social'] == 'OSDE' else 'info' if paciente.fields['Obra Social'] == 'Swiss Medical' else 'warning' if paciente.fields['Obra Social'] == 'Galeno' else 'secondary' }}">
+                                {{ paciente.fields['Obra Social'] or 'No especificada' }}
+                            </span>
+                            {% if paciente.fields['Numero Afiliado'] %}
+                                <br><small class="text-muted">N° {{ paciente.fields['Numero Afiliado'] }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historia Clínica -->
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clipboard-heart text-primary me-2"></i>
+                        Historia Clínica
+                    </h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="editarHistoria()">
+                        <i class="bi bi-pencil me-1"></i>Editar
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <label class="form-label text-muted small">Historia Clínica</label>
+                    <div class="bg-light p-3 rounded">
+                        {% if paciente.fields['Historia Clinica'] %}
+                            <p class="mb-0">{{ paciente.fields['Historia Clinica'] }}</p>
+                        {% else %}
+                            <p class="text-muted mb-0">No hay historia clínica registrada</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Antecedentes Médicos</label>
+                        <div>
+                            {% if paciente.fields.Antecedentes %}
+                                {% for antecedente in paciente.fields.Antecedentes %}
+                                    <span class="badge bg-warning text-dark me-1 mb-1">{{ antecedente }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Sin antecedentes registrados</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Alergias</label>
+                        <div>
+                            {% if paciente.fields.Alergias %}
+                                <div class="alert alert-warning py-2 px-3">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    {{ paciente.fields.Alergias }}
+                                </div>
+                            {% else %}
+                                <span class="text-muted">Sin alergias registradas</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notas Adicionales -->
+        {% if paciente.fields.Notas %}
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-chat-left-text text-primary me-2"></i>
+                    Notas Adicionales
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="bg-light p-3 rounded">
+                    <p class="mb-0">{{ paciente.fields.Notas }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Odontograma -->
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-diagram-3 text-primary me-2"></i>
+                        Odontograma
+                    </h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="editarOdontograma()">
+                        <i class="bi bi-pencil me-1"></i>Editar
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="odontograma-container" class="text-center">
+                    <!-- Aquí iría el odontograma interactivo -->
+                    <div class="bg-light p-4 rounded">
+                        <i class="bi bi-diagram-3 text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Odontograma no disponible</p>
+                        <button class="btn btn-primary btn-sm" onclick="crearOdontograma()">
+                            <i class="bi bi-plus me-1"></i>Crear Odontograma
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Estadísticas del Paciente -->
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-graph-up text-success me-2"></i>
+                    Estadísticas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="stat-number text-primary">{{ stats.consultas or 0 }}</div>
+                        <small class="text-muted">Consultas</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-number text-success">{{ stats.tratamientos or 0 }}</div>
+                        <small class="text-muted">Tratamientos</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-number text-warning">{{ stats.pendientes or 0 }}</div>
+                        <small class="text-muted">Pendientes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Próximos Turnos -->
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-calendar-check text-info me-2"></i>
+                    Próximos Turnos
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="proximos-turnos-paciente">
+                    {% if proximos_turnos %}
+                        {% for turno in proximos_turnos %}
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                            <div>
+                                <strong>{{ turno.fecha }} {{ turno.hora }}</strong><br>
+                                <small class="text-muted">{{ turno.tratamiento }}</small>
+                            </div>
+                            <span class="badge bg-{{ 'success' if turno.estado == 'Confirmado' else 'warning' if turno.estado == 'Pendiente' else 'secondary' }}">
+                                {{ turno.estado }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No hay turnos programados</p>
+                    {% endif %}
+                </div>
+                <button class="btn btn-sm btn-outline-primary w-100 mt-2" onclick="crearTurno()">
+                    <i class="bi bi-plus me-1"></i>Agregar Turno
+                </button>
+            </div>
+        </div>
+
+        <!-- Historial de Consultas -->
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-clock-history text-secondary me-2"></i>
+                    Últimas Consultas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% if historial_consultas %}
+                        {% for consulta in historial_consultas %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-{{ 'success' if consulta.tipo == 'Completada' else 'info' if consulta.tipo == 'Consulta' else 'warning' }}"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">{{ consulta.fecha }}</small>
+                                <div class="fw-medium">{{ consulta.tratamiento }}</div>
+                                <small class="text-muted">{{ consulta.observaciones }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No hay consultas registradas</p>
+                    {% endif %}
+                </div>
+                <button class="btn btn-sm btn-outline-secondary w-100 mt-2" onclick="verHistorialCompleto()">
+                    <i class="bi bi-eye me-1"></i>Ver Historial Completo
+                </button>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="card mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-lightning text-primary me-2"></i>
+                    Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="crearTurno()">
+                        <i class="bi bi-calendar-plus me-1"></i>Nuevo Turno
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="enviarRecordatorio()">
+                        <i class="bi bi-bell me-1"></i>Recordatorio
+                    </button>
+                    <button class="btn btn-outline-success btn-sm" onclick="llamarPaciente()">
+                        <i class="bi bi-telephone me-1"></i>Llamar
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="enviarEmail()">
+                        <i class="bi bi-envelope me-1"></i>Enviar Email
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentos Adjuntos -->
+        <div class="card">
+            <div class="card-header bg-transparent border-0">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-file-earmark-text text-info me-2"></i>
+                    Documentos
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if documentos %}
+                    {% for documento in documentos %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                        <div>
+                            <i class="bi bi-file-earmark-{{ 'pdf' if documento.tipo == 'pdf' else 'image' if documento.tipo in ['jpg', 'png'] else 'text' }} me-2"></i>
+                            <span class="fw-medium">{{ documento.nombre }}</span><br>
+                            <small class="text-muted">{{ documento.fecha }}</small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" onclick="verDocumento('{{ documento.id }}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="descargarDocumento('{{ documento.id }}')">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No hay documentos adjuntos</p>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-primary w-100 mt-2" onclick="subirDocumento()">
+                    <i class="bi bi-upload me-1"></i>Subir Documento
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales -->
+<!-- Modal para editar paciente -->
+<div class="modal fade" id="modalEditarPaciente" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Paciente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario de edición -->
+                <form id="formEditarPaciente">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" name="nombre" value="{{ paciente.fields.Nombre }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">DNI</label>
+                            <input type="text" class="form-control" name="dni" value="{{ paciente.fields.DNI }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" name="telefono" value="{{ paciente.fields.Telefono }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" value="{{ paciente.fields.Email }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" name="fecha_nacimiento" value="{{ paciente.fields['Fecha Nacimiento'] }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Obra Social</label>
+                            <select class="form-control" name="obra_social">
+                                <option value="">Seleccionar...</option>
+                                <option value="OSDE" {{ 'selected' if paciente.fields['Obra Social'] == 'OSDE' }}>OSDE</option>
+                                <option value="Swiss Medical" {{ 'selected' if paciente.fields['Obra Social'] == 'Swiss Medical' }}>Swiss Medical</option>
+                                <option value="Galeno" {{ 'selected' if paciente.fields['Obra Social'] == 'Galeno' }}>Galeno</option>
+                                <option value="Otra" {{ 'selected' if paciente.fields['Obra Social'] not in ['OSDE', 'Swiss Medical', 'Galeno'] }}>Otra</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Alergias</label>
+                            <textarea class="form-control" name="alergias" rows="3">{{ paciente.fields.Alergias }}</textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-control" name="notas" rows="3">{{ paciente.fields.Notas }}</textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarCambiosPaciente()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS adicional -->
+<style>
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.timeline {
+    position: relative;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 30px;
+    padding-bottom: 20px;
+}
+
+.timeline-item:not(:last-child):before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 20px;
+    height: calc(100% - 10px);
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.avatar {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+    padding: 1rem 1.25rem;
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+</style>
+
+<!-- JavaScript -->
+<script>
+function crearTurno() {
+    // Implementar creación de turno
+    alert('Función para crear turno');
+}
+
+function editarPaciente() {
+    const modal = new bootstrap.Modal(document.getElementById('modalEditarPaciente'));
+    modal.show();
+}
+
+function editarHistoria() {
+    // Implementar edición de historia clínica
+    alert('Función para editar historia clínica');
+}
+
+function imprimirFicha() {
+    // Implementar impresión de ficha
+    window.print();
+}
+
+function exportarHistoria() {
+    // Implementar exportación de historia
+    alert('Función para exportar historia clínica');
+}
+
+function enviarRecordatorio() {
+    // Implementar envío de recordatorio
+    alert('Función para enviar recordatorio');
+}
+
+function llamarPaciente() {
+    const telefono = '{{ paciente.fields.Telefono }}';
+    if (telefono) {
+        window.open(`tel:${telefono}`);
+    } else {
+        alert('No hay número de teléfono registrado');
+    }
+}
+
+function enviarEmail() {
+    const email = '{{ paciente.fields.Email }}';
+    if (email) {
+        window.open(`mailto:${email}`);
+    } else {
+        alert('No hay email registrado');
+    }
+}
+
+function verHistorialCompleto() {
+    // Implementar vista de historial completo
+    alert('Función para ver historial completo');
+}
+
+function editarOdontograma() {
+    // Implementar edición de odontograma
+    alert('Función para editar odontograma');
+}
+
+function crearOdontograma() {
+    // Implementar creación de odontograma
+    alert('Función para crear odontograma');
+}
+
+function subirDocumento() {
+    // Implementar subida de documentos
+    alert('Función para subir documentos');
+}
+
+function verDocumento(id) {
+    // Implementar visualización de documento
+    alert(`Ver documento ${id}`);
+}
+
+function descargarDocumento(id) {
+    // Implementar descarga de documento
+    alert(`Descargar documento ${id}`);
+}
+
+function guardarCambiosPaciente() {
+    const form = document.getElementById('formEditarPaciente');
+    const formData = new FormData(form);
+    
+    // Aquí implementarías la lógica para enviar los datos al servidor
+    console.log('Guardando cambios del paciente...');
+    
+    // Ejemplo de lo que podrías hacer:
+    /*
+    fetch('/api/pacientes/{{ paciente.id }}', {
+        method: 'PUT',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error al guardar los cambios');
+        }
+    });
+    */
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPaciente'));
+    modal.hide();
+    alert('Cambios guardados correctamente');
+}
+</script>
+{% endblock %}

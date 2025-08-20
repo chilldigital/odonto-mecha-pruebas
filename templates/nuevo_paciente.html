@@ -1,0 +1,493 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Paciente - Sistema Odontológico{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('lista_pacientes') }}">Pacientes</a></li>
+                <li class="breadcrumb-item active">Nuevo Paciente</li>
+            </ol>
+        </nav>
+        <h2 class="mb-0">
+            <i class="bi bi-person-plus text-primary me-2"></i>
+            Agregar Nuevo Paciente
+        </h2>
+        <p class="text-muted">Completa la información del paciente para agregarlo al sistema</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Formulario Principal -->
+        <div class="card">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clipboard-data text-primary me-2"></i>
+                    Información del Paciente
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="formNuevoPaciente">
+                    <!-- Información Personal -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary fw-bold mb-3">
+                                <i class="bi bi-person me-1"></i>Datos Personales
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="nombre" class="form-label">
+                                Nombre Completo <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="nombre" 
+                                name="nombre" 
+                                placeholder="Ej: María González"
+                                required
+                                autocomplete="name"
+                            >
+                            <div class="invalid-feedback">
+                                Por favor ingrese el nombre completo del paciente.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="dni" class="form-label">
+                                DNI/Documento
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="dni" 
+                                name="dni" 
+                                placeholder="12345678"
+                                maxlength="8"
+                                pattern="[0-9]{7,8}"
+                            >
+                            <div class="form-text">Solo números, sin puntos ni espacios</div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Contacto -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary fw-bold mb-3">
+                                <i class="bi bi-telephone me-1"></i>Contacto
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input 
+                                type="tel" 
+                                class="form-control" 
+                                id="telefono" 
+                                name="telefono" 
+                                placeholder="(381) 123-4567"
+                            >
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email" 
+                                placeholder="paciente@email.com"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Información Médica -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary fw-bold mb-3">
+                                <i class="bi bi-heart-pulse me-1"></i>Información Médica
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="obra_social" class="form-label">
+                                Obra Social <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="obra_social" name="obra_social" required>
+                                <option value="">Seleccionar obra social...</option>
+                                <option value="OSDE">OSDE</option>
+                                <option value="Swiss Medical">Swiss Medical</option>
+                                <option value="Galeno">Galeno</option>
+                                <option value="Medicus">Medicus</option>
+                                <option value="IOMA">IOMA</option>
+                                <option value="PAMI">PAMI</option>
+                                <option value="Particular">Particular</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor seleccione una obra social.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3" id="otra-obra-social" style="display: none;">
+                            <label for="otra_obra_social" class="form-label">Especificar Obra Social</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="otra_obra_social" 
+                                name="otra_obra_social" 
+                                placeholder="Ingrese el nombre de la obra social"
+                            >
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="numero_afiliado" class="form-label">Número de Afiliado</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="numero_afiliado" 
+                                name="numero_afiliado" 
+                                placeholder="123456789"
+                            >
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input 
+                                type="date" 
+                                class="form-control" 
+                                id="fecha_nacimiento" 
+                                name="fecha_nacimiento"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Historia Clínica -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary fw-bold mb-3">
+                                <i class="bi bi-clipboard-heart me-1"></i>Historia Clínica
+                            </h6>
+                        </div>
+                        
+                        <div class="col-12 mb-3">
+                            <label for="historia_clinica" class="form-label">
+                                Historia Clínica <span class="text-danger">*</span>
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="historia_clinica" 
+                                name="historia_clinica" 
+                                rows="6" 
+                                placeholder="Describa los antecedentes médicos, alergias, tratamientos previos, motivo de consulta, etc."
+                                required
+                            ></textarea>
+                            <div class="invalid-feedback">
+                                Por favor complete la historia clínica del paciente.
+                            </div>
+                            <div class="form-text">
+                                <span id="contador-caracteres">0</span>/2000 caracteres
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Antecedentes y Alergias -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Antecedentes Médicos</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="diabetes" name="antecedentes" value="diabetes">
+                                <label class="form-check-label" for="diabetes">Diabetes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="hipertension" name="antecedentes" value="hipertension">
+                                <label class="form-check-label" for="hipertension">Hipertensión</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cardiopatia" name="antecedentes" value="cardiopatia">
+                                <label class="form-check-label" for="cardiopatia">Cardiopatías</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="otros_antecedentes" name="antecedentes" value="otros">
+                                <label class="form-check-label" for="otros_antecedentes">Otros</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="alergias" class="form-label">Alergias</label>
+                            <textarea 
+                                class="form-control" 
+                                id="alergias" 
+                                name="alergias" 
+                                rows="4" 
+                                placeholder="Especificar alergias a medicamentos, materiales, etc."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="d-flex gap-3 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Guardar Paciente
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="limpiarFormulario()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Limpiar
+                        </button>
+                        <a href="{{ url_for('lista_pacientes') }}" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Card de Vista Previa -->
+        <div class="card mt-4">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-eye text-info me-2"></i>
+                    Vista Previa
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person fs-1" id="preview-avatar"></i>
+                            </div>
+                            <h5 id="preview-nombre">Nombre del Paciente</h5>
+                            <p class="text-muted" id="preview-obra-social">Obra Social</p>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">DNI:</small>
+                                <div id="preview-dni">-</div>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Teléfono:</small>
+                                <div id="preview-telefono">-</div>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Email:</small>
+                                <div id="preview-email">-</div>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <small class="text-muted">Fecha Nac.:</small>
+                                <div id="preview-fecha-nac">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formNuevoPaciente');
+    const historiaClinica = document.getElementById('historia_clinica');
+    const contadorCaracteres = document.getElementById('contador-caracteres');
+    const obraSocialSelect = document.getElementById('obra_social');
+    const otraObraSocialDiv = document.getElementById('otra-obra-social');
+    
+    // Contador de caracteres para historia clínica
+    historiaClinica.addEventListener('input', function() {
+        const length = this.value.length;
+        contadorCaracteres.textContent = length;
+        
+        if (length > 2000) {
+            contadorCaracteres.classList.add('text-danger');
+            this.value = this.value.substring(0, 2000);
+        } else {
+            contadorCaracteres.classList.remove('text-danger');
+        }
+    });
+    
+    // Mostrar campo para "Otra" obra social
+    obraSocialSelect.addEventListener('change', function() {
+        if (this.value === 'Otra') {
+            otraObraSocialDiv.style.display = 'block';
+            document.getElementById('otra_obra_social').required = true;
+        } else {
+            otraObraSocialDiv.style.display = 'none';
+            document.getElementById('otra_obra_social').required = false;
+        }
+    });
+    
+    // Vista previa en tiempo real
+    actualizarVistaPrevia();
+    
+    // Escuchar cambios en todos los campos para actualizar vista previa
+    const campos = ['nombre', 'dni', 'telefono', 'email', 'obra_social', 'fecha_nacimiento'];
+    campos.forEach(campo => {
+        const elemento = document.getElementById(campo);
+        if (elemento) {
+            elemento.addEventListener('input', actualizarVistaPrevia);
+        }
+    });
+    
+    // Validación en tiempo real
+    form.addEventListener('input', function(e) {
+        if (e.target.classList.contains('form-control') || e.target.classList.contains('form-select')) {
+            validarCampo(e.target);
+        }
+    });
+    
+    // Validación al enviar formulario
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (validarFormulario()) {
+            enviarFormulario();
+        }
+    });
+});
+
+function actualizarVistaPrevia() {
+    const nombre = document.getElementById('nombre').value || 'Nombre del Paciente';
+    const dni = document.getElementById('dni').value || '-';
+    const telefono = document.getElementById('telefono').value || '-';
+    const email = document.getElementById('email').value || '-';
+    const obraSocial = document.getElementById('obra_social').value || 'Obra Social';
+    const fechaNac = document.getElementById('fecha_nacimiento').value || '-';
+    
+    document.getElementById('preview-nombre').textContent = nombre;
+    document.getElementById('preview-obra-social').textContent = obraSocial;
+    document.getElementById('preview-dni').textContent = dni;
+    document.getElementById('preview-telefono').textContent = telefono;
+    document.getElementById('preview-email').textContent = email;
+    document.getElementById('preview-fecha-nac').textContent = fechaNac ? new Date(fechaNac).toLocaleDateString() : '-';
+    
+    // Actualizar avatar con inicial del nombre
+    const avatar = document.getElementById('preview-avatar');
+    if (nombre !== 'Nombre del Paciente') {
+        avatar.textContent = nombre.charAt(0).toUpperCase();
+        avatar.className = 'fs-2';
+    } else {
+        avatar.innerHTML = '<i class="bi bi-person fs-1"></i>';
+        avatar.className = '';
+    }
+}
+
+function validarCampo(campo) {
+    const valor = campo.value.trim();
+    let esValido = true;
+    
+    // Validaciones específicas por campo
+    switch (campo.id) {
+        case 'nombre':
+            esValido = valor.length >= 2;
+            break;
+        case 'dni':
+            esValido = !valor || /^\d{7,8}$/.test(valor);
+            break;
+        case 'email':
+            esValido = !valor || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+            break;
+        case 'telefono':
+            esValido = !valor || valor.length >= 8;
+            break;
+        case 'historia_clinica':
+            esValido = valor.length >= 10;
+            break;
+    }
+    
+    // Aplicar estilos de validación
+    if (esValido) {
+        campo.classList.remove('is-invalid');
+        campo.classList.add('is-valid');
+    } else {
+        campo.classList.remove('is-valid');
+        campo.classList.add('is-invalid');
+    }
+    
+    return esValido;
+}
+
+function validarFormulario() {
+    const camposRequeridos = ['nombre', 'obra_social', 'historia_clinica'];
+    let formularioValido = true;
+    
+    camposRequeridos.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (!validarCampo(campo) || !campo.value.trim()) {
+            formularioValido = false;
+        }
+    });
+    
+    return formularioValido;
+}
+
+function enviarFormulario() {
+    const form = document.getElementById('formNuevoPaciente');
+    const formData = new FormData(form);
+    
+    // Mostrar estado de carga
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+    submitBtn.disabled = true;
+    
+    // Enviar formulario
+    fetch(form.action || window.location.href, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        }
+        throw new Error('Error al guardar el paciente');
+    })
+    .then(data => {
+        // Si es exitoso, redirigir
+        if (data.includes('Paciente creado exitosamente') || response.redirected) {
+            window.location.href = "{{ url_for('lista_pacientes') }}";
+        } else {
+            // Actualizar la página con la respuesta
+            document.documentElement.innerHTML = data;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar el paciente. Por favor intente nuevamente.');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+function limpiarFormulario() {
+    if (confirm('¿Está seguro de que desea limpiar todos los campos?')) {
+        document.getElementById('formNuevoPaciente').reset();
+        
+        // Limpiar clases de validación
+        document.querySelectorAll('.is-valid, .is-invalid').forEach(element => {
+            element.classList.remove('is-valid', 'is-invalid');
+        });
+        
+        // Ocultar campo de otra obra social
+        document.getElementById('otra-obra-social').style.display = 'none';
+        
+        // Resetear contador de caracteres
+        document.getElementById('contador-caracteres').textContent = '0';
+        
+        // Actualizar vista previa
+        actualizarVistaPrevia();
+    }
+}
+</script>
+{% endblock %}
