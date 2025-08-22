@@ -1,0 +1,197 @@
+:root {
+    --dental-primary: #0077be;
+    --dental-secondary: #00a8cc;
+    --dental-accent: #4cc9f0;
+    --dental-light: #f8fcff;
+    --dental-dark: #003d5b;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--dental-light) 0%, #ffffff 100%);
+    min-height: 100vh;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--dental-primary) !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--dental-secondary) !important;
+    transform: translateY(-1px);
+}
+
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 119, 190, 0.1);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 119, 190, 0.15);
+}
+
+.hero-card {
+    background: linear-gradient(135deg, var(--dental-primary), var(--dental-secondary)) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--dental-primary), var(--dental-secondary));
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 119, 190, 0.3);
+    background: linear-gradient(135deg, var(--dental-dark), var(--dental-primary));
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--dental-primary);
+    color: var(--dental-primary);
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: var(--dental-primary);
+    border-color: var(--dental-primary);
+    transform: translateY(-2px);
+}
+
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.table th {
+    background: linear-gradient(135deg, var(--dental-primary), var(--dental-secondary));
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 16px;
+}
+
+.table td {
+    padding: 16px;
+    vertical-align: middle;
+    border-color: rgba(0, 119, 190, 0.1);
+}
+
+.form-control, .form-select {
+    border-radius: 12px;
+    border: 2px solid rgba(0, 119, 190, 0.1);
+    padding: 12px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--dental-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 119, 190, 0.25);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--dental-accent), var(--dental-secondary));
+    color: white;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px) scale(1.02);
+}
+
+.stat-card-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.stat-card-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.stat-card-info {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--dental-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 119, 190, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--dental-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--dental-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 16px;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+}

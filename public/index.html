@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Odonto · Dashboard</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+  <!-- HTMX + ext json-enc -->
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Estilos rápidos (opcional) -->
+  <style>
+    .scrolly{scrollbar-width:thin}
+    .htmx-indicator{display:none}
+    .htmx-request .htmx-indicator{display:inline-block}
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+  <!--
+    COMPONENTE: Sidebar (reutilizable)
+    Para escalar: mover a /partials y pegar en todas las páginas, o usar includes del servidor si en el futuro pasas a un generador estático.
+  -->
+  <div class="flex">
+    <aside class="hidden md:flex md:w-64 min-h-screen bg-white border-r border-slate-200">
+      <nav class="w-full p-6 space-y-6">
+        <div class="flex items-center gap-3 text-slate-800">
+          <i class="fa-solid fa-tooth text-cyan-600 text-2xl"></i>
+          <span class="font-semibold">Odonto · Pro</span>
+        </div>
+        <ul class="space-y-1 text-sm">
+          <li><a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-cyan-50 text-cyan-700"><i class="fa-solid fa-gauge"></i>Inicio</a></li>
+          <li><a href="pacientes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-users"></i>Pacientes</a></li>
+          <li><a href="agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-calendar-week"></i>Agenda</a></li>
+          <li><a href="turnos.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-calendar-check"></i>Turnos</a></li>
+          <li><a href="config.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-gear"></i>Configuración</a></li>
+        </ul>
+
+        <!-- CTA rápido -->
+        <div class="p-4 bg-slate-100 rounded-xl">
+          <p class="text-xs text-slate-600 mb-3">¿Nuevo paciente?</p>
+          <a href="pacientes.html#nuevo" class="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
+            <i class="fa-solid fa-user-plus"></i> Agregar paciente
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="flex-1 min-h-screen">
+      <!-- Topbar -->
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
+        <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+          <h1 class="text-lg font-semibold">Dashboard</h1>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-100"
+                    hx-get="https://n8n.chilldigital.tech/webhook/estadisticas"
+                    hx-trigger="click"
+                    hx-indicator="#syncSpin"
+                    hx-on::after-request="window.renderStats(event); window.toastOk('Datos sincronizados');">
+              <i class="fa-solid fa-rotate"></i> Sincronizar
+            </button>
+            <span id="syncSpin" class="htmx-indicator text-slate-500 text-sm"><i class="fa-solid fa-spinner fa-spin"></i> …</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="mx-auto max-w-7xl p-4 md:p-6 space-y-6">
+        <!--
+          COMPONENTE: Tarjetas de métricas (reutilizable)
+          Notas: se llenan con JSON desde n8n. Estructura esperada:
+          { totalPacientes, turnosHoy, turnosSemana, ultimoRegistro } o { datos: {...} }
+        -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-5 bg-white rounded-2xl border border-slate-200">
+            <div class="text-slate-500 text-sm">Total Pacientes</div>
+            <div id="stat-total" class="text-3xl font-semibold mt-1">—</div>
+          </div>
+          <div class="p-5 bg-white rounded-2xl border border-slate-200">
+            <div class="text-slate-500 text-sm">Turnos Hoy</div>
+            <div id="stat-hoy" class="text-3xl font-semibold mt-1">—</div>
+          </div>
+          <div class="p-5 bg-white rounded-2xl border border-slate-200">
+            <div class="text-slate-500 text-sm">Turnos Semana</div>
+            <div id="stat-semana" class="text-3xl font-semibold mt-1">—</div>
+          </div>
+          <div class="p-5 bg-white rounded-2xl border border-slate-200">
+            <div class="text-slate-500 text-sm">Días desde último</div>
+            <div id="stat-ultimo" class="text-3xl font-semibold mt-1">—</div>
+          </div>
+        </div>
+
+        <!-- Chart Turnos por Semana -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold">Turnos por semana</h2>
+            <div class="text-sm text-slate-500" id="chart-meta">Últimos 6-12 períodos</div>
+          </div>
+          <canvas id="turnosChart" height="80"
+                  hx-get="https://n8n.chilldigital.tech/webhook/turnos-por-semana"
+                  hx-trigger="load"
+                  hx-indicator="#chartSpin"
+                  hx-on::after-request="window.renderTurnosChart(event)"></canvas>
+          <div id="chartSpin" class="htmx-indicator mt-2 text-slate-500 text-sm"><i class="fa-solid fa-spinner fa-spin"></i> Cargando…</div>
+        </div>
+
+        <!-- Pacientes recientes -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold">Pacientes recientes</h2>
+            <a href="pacientes.html" class="text-cyan-700 text-sm hover:underline">Ver todos</a>
+          </div>
+          <div id="recent-list" class="space-y-3"
+               hx-get="https://n8n.chilldigital.tech/webhook/listar-pacientes"
+               hx-trigger="load"
+               hx-indicator="#recentSpin"
+               hx-on::after-request="window.renderRecentPatients(event)"></div>
+          <div id="recentSpin" class="htmx-indicator text-slate-500 text-sm"><i class="fa-solid fa-spinner fa-spin"></i> Cargando…</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toastArea" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+
+  <!-- App JS (global) -->
+  <script src="assets/js/app.js"></script>
+
+  <!-- Auto-carga inicial de métricas -->
+  <div hx-get="https://n8n.chilldigital.tech/webhook/estadisticas"
+       hx-trigger="load"
+       hx-on::after-request="window.renderStats(event)"></div>
+</body>
+</html>

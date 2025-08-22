@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Odonto · Pacientes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
+</head>
+<body class="min-h-screen bg-slate-50">
+  <div class="flex">
+    <aside class="hidden md:flex md:w-64 min-h-screen bg-white border-r border-slate-200">
+      <nav class="w-full p-6 space-y-6">
+        <div class="flex items-center gap-3"><i class="fa-solid fa-tooth text-cyan-600 text-2xl"></i><span class="font-semibold">Odonto · Pro</span></div>
+        <ul class="space-y-1 text-sm">
+          <li><a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-gauge"></i>Inicio</a></li>
+          <li><a href="pacientes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-cyan-50 text-cyan-700"><i class="fa-solid fa-users"></i>Pacientes</a></li>
+          <li><a href="agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-calendar-week"></i>Agenda</a></li>
+          <li><a href="turnos.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-calendar-check"></i>Turnos</a></li>
+          <li><a href="config.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-gear"></i>Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="flex-1">
+      <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+        <h1 class="text-lg font-semibold">Pacientes</h1>
+        <a href="#nuevo" class="px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+           hx-get="https://n8n.chilldigital.tech/webhook/listar-pacientes"
+           hx-trigger="revealed"
+           hx-on::after-request="window.renderPatients(event)">
+          <i class="fa-solid fa-user-plus"></i> Nuevo
+        </a>
+      </header>
+
+      <section class="p-4 md:p-6 space-y-6">
+        <!-- Filtros -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+          <form class="grid grid-cols-1 md:grid-cols-3 gap-3"
+                hx-get="https://n8n.chilldigital.tech/webhook/listar-pacientes"
+                hx-trigger="change from:input, change from:select, submit"
+                hx-include="[name]"
+                hx-on::after-request="window.renderPatients(event)"
+                >
+            <input name="q" type="search" placeholder="Buscar por nombre…" class="px-3 py-2 rounded-lg border border-slate-300"/>
+            <select name="obra_social" class="px-3 py-2 rounded-lg border border-slate-300">
+              <option value="">Obra social (todas)</option>
+              <option>OSDE</option><option>Swiss Medical</option><option>Galeno</option><option>Particular</option>
+            </select>
+            <button class="px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+          </form>
+        </div>
+
+        <!-- Tabla -->
+        <div class="bg-white rounded-2xl border border-slate-200">
+          <div class="p-4 flex items-center justify-between">
+            <div class="text-sm text-slate-500" id="pac-count">—</div>
+            <div class="text-sm text-slate-500 htmx-indicator"><i class="fa-solid fa-spinner fa-spin"></i> Cargando…</div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50">
+                <tr class="text-left">
+                  <th class="px-4 py-3">Nombre</th>
+                  <th class="px-4 py-3">DNI</th>
+                  <th class="px-4 py-3">Contacto</th>
+                  <th class="px-4 py-3">Obra social</th>
+                  <th class="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody id="pac-body" class="divide-y divide-slate-100"
+                     hx-get="https://n8n.chilldigital.tech/webhook/listar-pacientes"
+                     hx-trigger="load"
+                     hx-indicator=".htmx-indicator"
+                     hx-on::after-request="window.renderPatients(event)">
+                <!-- render JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Alta rápida -->
+        <div id="nuevo" class="bg-white rounded-2xl border border-slate-200 p-5">
+          <h2 class="text-base font-semibold mb-3"><i class="fa-solid fa-user-plus text-emerald-600"></i> Agregar paciente</h2>
+
+          <!--
+            FORM REUTILIZABLE (POST JSON limpio)
+            Endpoint: /webhook/agregar-paciente
+            Respuesta esperada: { success: true, id: "...", message?: "..." }
+          -->
+          <form hx-post="https://n8n.chilldigital.tech/webhook/agregar-paciente"
+                hx-ext="json-enc"
+                hx-trigger="submit"
+                hx-indicator="#saveSpin"
+                hx-on::after-request="window.afterCreatePatient(event)"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input class="px-3 py-2 rounded-lg border border-slate-300" name="nombre" placeholder="Nombre completo" required>
+            <input class="px-3 py-2 rounded-lg border border-slate-300" name="dni" placeholder="DNI">
+            <input class="px-3 py-2 rounded-lg border border-slate-300" name="telefono" placeholder="Teléfono">
+            <input type="email" class="px-3 py-2 rounded-lg border border-slate-300" name="email" placeholder="Email">
+            <select name="obra_social" class="px-3 py-2 rounded-lg border border-slate-300 md:col-span-1" required>
+              <option value="">Obra social…</option><option>OSDE</option><option>Swiss Medical</option><option>Galeno</option><option>Particular</option>
+            </select>
+            <input class="px-3 py-2 rounded-lg border border-slate-300" name="numero_afiliado" placeholder="N° afiliado">
+            <input type="date" class="px-3 py-2 rounded-lg border border-slate-300" name="fecha_nacimiento" placeholder="Fecha nacimiento">
+            <textarea class="px-3 py-2 rounded-lg border border-slate-300 md:col-span-2" rows="4" name="historia_clinica" placeholder="Historia clínica" required></textarea>
+
+            <div class="md:col-span-2 flex items-center gap-2">
+              <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+              <span id="saveSpin" class="htmx-indicator text-slate-500 text-sm"><i class="fa-solid fa-spinner fa-spin"></i> Guardando…</span>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastArea" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
