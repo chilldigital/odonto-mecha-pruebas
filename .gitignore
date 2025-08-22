@@ -1,0 +1,209 @@
+# ==========================================
+# ARCHIVOS Y CARPETAS A IGNORAR EN GIT
+# ==========================================
+
+# Variables de entorno y secrets
+.env
+.env.local
+.env.production
+.env.development
+*.env
+secrets/
+.secrets
+
+# Logs del sistema
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Datos de N8N (contiene credenciales)
+n8n/credentials/
+n8n/data/
+.n8n/
+
+# Backups (pueden ser muy grandes)
+backups/
+*.tar.gz
+*.zip
+*.sql
+*.dump
+
+# Datos de base de datos
+postgres-data/
+*.sqlite
+*.db
+
+# Archivos temporales del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-*
+
+# Node.js (si se usa)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Archivos de construcción
+dist/
+build/
+.next/
+out/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# SSL/TLS certificates
+ssl/
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Cache
+.cache/
+*.cache
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+
+# parcel-bundler cache (https://parceljs.org/)
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Windows specific
+$RECYCLE.BIN/
+
+# Linux specific
+*~
+
+# macOS specific
+.AppleDouble
+.LSOverride
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# ==========================================
+# ARCHIVOS ESPECÍFICOS DEL PROYECTO
+# ==========================================
+
+# Archivos de configuración local
+config.local.json
+config.development.json
+config.production.json
+
+# Archivos de prueba
+test-data/
+mock-data/
+
+# Documentación temporal
+docs/temp/
+*.draft.md
+
+# ==========================================
+# PERMITIR ARCHIVOS NECESARIOS
+# ==========================================
+
+# Mantener archivos de ejemplo
+!.env.example
+!config.example.json
+
+# Mantener estructura de carpetas vacías
+!n8n/workflows/.gitkeep
+!n8n/credentials/.gitkeep
+!logs/.gitkeep
+!backups/.gitkeep
+
+# Mantener scripts de despliegue
+!scripts/
+!scripts/*
+
+# Mantener archivos de documentación
+!README.md
+!CHANGELOG.md
+!LICENSE
